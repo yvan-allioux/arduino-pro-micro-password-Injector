@@ -24,29 +24,7 @@ int codeInput[] = { 0, 0, 0, 0 };  // Code à 4 chiffres
 
 String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 
-void setup() {
-  pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
-  pinMode(buttonPin2, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
-  pinMode(LED_BUILTIN_RX, OUTPUT);    // RX LED comme sortie
-  pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS)) {
-    displayError("Erreur OLED!");
-    Serial.println(F("SSD1306 allocation failed"));
-    for (;;)
-      ;
-  }
-  display.clearDisplay();
-  display.setTextSize(4);  // Taille du texte
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(20, 20);  // Position du curseur
-  display.print("0000");      // Votre nombre à 4 chiffres
-  display.display();
-
-  delay(50);
-  KeyboardAzertyFr.begin();
-  delay(500);
-}
 
 void typeKey(int key) {
   KeyboardAzertyFr.press(key);
@@ -54,18 +32,31 @@ void typeKey(int key) {
   KeyboardAzertyFr.release(key);
 }
 
+void displayError(const char* errorMsg) {
+  display.clearDisplay();  // Efface l'affichage
+  display.setTextSize(1);  // Taille du texte
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 10);    // Position du curseur au début
+  display.println(errorMsg);  // Affiche le message d'erreur
+  display.display();          // Met à jour l'affichage
+}
+
+void clignote(int nbDeFlash, int delayMs){
+  for (int i = 0; i < nbDeFlash; i++) {          // Clignote 5 fois
+      digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
+      digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
+      delay(delayMs);
+      digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
+      digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
+      delay(delayMs);
+  }
+}
+
 void writePass() {
   if (!SD.begin(chipSelect)) {
     // Si la carte SD n'est pas détectée, clignotez la LED
     displayError("Erreur SD Card!");
-    for (int i = 0; i < 3; i++) {          // Clignote 5 fois
-      digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
-      digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
-      delay(200);
-      digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
-      digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
-      delay(200);
-    }
+    clignote(3, 200);
     return;
   }
 
@@ -92,14 +83,7 @@ void writePass() {
     KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
   } else {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
-    for (int i = 0; i < 6; i++) {          // Clignote 5 fois
-      digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
-      digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
-      delay(200);
-      digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
-      digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
-      delay(200);
-    }
+    clignote(6, 200);
   }
 
   typeKey(KEY_RETURN);
@@ -143,21 +127,38 @@ String xorWithPin(int pin[4], String password) {
   return encrypted;
 }
 
-void displayError(const char* errorMsg) {
-  display.clearDisplay();  // Efface l'affichage
-  display.setTextSize(1);  // Taille du texte
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);    // Position du curseur au début
-  display.println(errorMsg);  // Affiche le message d'erreur
-  display.display();          // Met à jour l'affichage
-}
+void setup() {
+  pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
+  pinMode(buttonPin2, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
+  pinMode(LED_BUILTIN_RX, OUTPUT);    // RX LED comme sortie
+  pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
 
+  if (!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS)) {
+    displayError("Erreur OLED!");
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;)
+      ;
+  }
+  
+
+  display.clearDisplay();
+  display.setTextSize(4);  // Taille du texte
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(20, 20);  // Position du curseur
+  display.print("0000");      // Votre nombre à 4 chiffres
+  display.display();
+
+  delay(50);
+  KeyboardAzertyFr.begin();
+  delay(500);
+}
 
 void loop() {
   buttonState = digitalRead(buttonPin);
   buttonState2 = digitalRead(buttonPin2);
 
   if (buttonState == LOW) {
+    //clignote(10, 20);
     codeInput[currentDigit] = (codeInput[currentDigit] + 1) % 10;
     displayUpdate();
     delay(500);
@@ -167,7 +168,8 @@ void loop() {
     currentDigit = (currentDigit + 1) % 4;
     // si le curseur est sur le dernier chiffre, on valide le code et on retourne à 0
     if (currentDigit == 0) {
-      writePass();
+      clignote(100, 20);
+      //writePass();
       currentDigit = 0;
     }
     displayUpdate();
