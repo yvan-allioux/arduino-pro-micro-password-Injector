@@ -21,27 +21,7 @@ bool buttonState2 = 0;     // Variable pour lire l'état du bouton
 int codeInput = 0000;
 int unite = 1;
 
-void setup() {
-  pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
-  pinMode(buttonPin2, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
-  pinMode(LED_BUILTIN_RX, OUTPUT);    // RX LED comme sortie
-  pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
 
-  if(!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;);
-  }
-  display.clearDisplay();
-  display.setTextSize(4);      // Taille du texte
-  display.setTextColor(SSD1306_WHITE); 
-  display.setCursor(20,20);   // Position du curseur
-  display.print("0000");      // Votre nombre à 4 chiffres
-  display.display();
-
-  delay(50);
-  KeyboardAzertyFr.begin();
-  delay(500);
-}
 
 void typeKey(int key) {
   KeyboardAzertyFr.press(key);
@@ -93,6 +73,28 @@ void writePass() {
 
   typeKey(KEY_RETURN);
   delay(1000);  // Petite pause pour éviter des répétitions accidentelles
+}
+
+void setup() {
+  pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
+  pinMode(buttonPin2, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
+  pinMode(LED_BUILTIN_RX, OUTPUT);    // RX LED comme sortie
+  pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+  display.clearDisplay();
+  display.setTextSize(4);      // Taille du texte
+  display.setTextColor(SSD1306_WHITE); 
+  display.setCursor(20,20);   // Position du curseur
+  display.print("0000");      // Votre nombre à 4 chiffres
+  display.display();
+
+  delay(50);
+  KeyboardAzertyFr.begin();
+  delay(500);
 }
 
 void loop() {
