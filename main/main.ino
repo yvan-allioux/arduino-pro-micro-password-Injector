@@ -36,43 +36,39 @@ void displayError(const char* errorMsg) {
   display.clearDisplay();  // Efface l'affichage
   display.setTextSize(1);  // Taille du texte
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 10);    // Position du curseur au début
+  display.setCursor(10, 10);  // Position du curseur au début
   display.println(errorMsg);  // Affiche le message d'erreur
   display.display();          // Met à jour l'affichage
 }
 
-void clignote(int nbDeFlash, int delayMs){
-  for (int i = 0; i < nbDeFlash; i++) {          // Clignote 5 fois
-      digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
-      digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
-      delay(delayMs);
-      digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
-      digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
-      delay(delayMs);
+void clignote(int nbDeFlash, int delayMs) {
+  for (int i = 0; i < nbDeFlash; i++) {  // Clignote 5 fois
+    digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
+    digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
+    delay(delayMs);
+    digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
+    digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
+    delay(delayMs);
   }
 }
 
 void writePass() {
-  if (!SD.begin(chipSelect)) {
+  /*if (!SD.begin(chipSelect)) {
     // Si la carte SD n'est pas détectée, clignotez la LED
     displayError("Erreur SD Card!");
     clignote(3, 200);
     return;
   }
-
   myFile = SD.open("data.txt");
-
   if (myFile) {
     //xorWithPin
     String unencrypted = "";
-
     delay(600);
     while (myFile.available()) {
       char c = myFile.read();
       delay(20);
       unencrypted += c;
       //KeyboardAzertyFr.print(c);
-
       digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
       digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
       delay(20);
@@ -85,7 +81,7 @@ void writePass() {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
     clignote(6, 200);
   }
-
+*/
   typeKey(KEY_RETURN);
   delay(1000);  // Petite pause pour éviter des répétitions accidentelles
 }
@@ -139,7 +135,7 @@ void setup() {
     for (;;)
       ;
   }
-  
+
 
   display.clearDisplay();
   display.setTextSize(4);  // Taille du texte
@@ -168,11 +164,12 @@ void loop() {
     currentDigit = (currentDigit + 1) % 4;
     // si le curseur est sur le dernier chiffre, on valide le code et on retourne à 0
     if (currentDigit == 0) {
-      clignote(100, 20);
-      //writePass();
+      clignote(5, 20);
+      writePass();
       currentDigit = 0;
     }
     displayUpdate();
     delay(500);
   }
+  delay(10);
 }
