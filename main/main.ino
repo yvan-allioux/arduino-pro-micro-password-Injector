@@ -11,7 +11,7 @@
 #define I2C_ADDRESS 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-File myFile;
+
 const int chipSelect = 10;  // Utilisez le bon numéro de broche pour le CS de votre module SD
 
 const int buttonPin = 9;   // Broche où le bouton est connecté
@@ -22,7 +22,7 @@ bool buttonState2 = 0;     // Variable pour lire l'état du bouton
 int currentDigit = 0;              // Chiffre actuellement en cours de modification (0 à 3)
 int codeInput[] = { 0, 0, 0, 0 };  // Code à 4 chiffres
 
-String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+
 
 
 
@@ -53,9 +53,10 @@ void clignote(int nbDeFlash, int delayMs) {
 }
 
 void writePass() {
-  /*if (!SD.begin(chipSelect)) {
+  File myFile;
+  if (!SD.begin(chipSelect)) {
     // Si la carte SD n'est pas détectée, clignotez la LED
-    displayError("Erreur SD Card!");
+    displayError("Erreur 13");
     clignote(3, 200);
     return;
   }
@@ -66,22 +67,22 @@ void writePass() {
     delay(600);
     while (myFile.available()) {
       char c = myFile.read();
-      delay(20);
+      KeyboardAzertyFr.print(c);
+      clignote(1, 10);
       unencrypted += c;
-      //KeyboardAzertyFr.print(c);
-      digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
-      digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
-      delay(20);
-      digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
-      digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
+      
+      
     }
     myFile.close();
-    KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
+    //unencrypted debug
+    displayError(unencrypted.c_str());
+    //KeyboardAzertyFr.print(unencrypted);
+    
   } else {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
-    clignote(6, 200);
+    displayError("Erreur 14");
   }
-*/
+
   typeKey(KEY_RETURN);
   delay(1000);  // Petite pause pour éviter des répétitions accidentelles
 }
@@ -104,6 +105,7 @@ void displayUpdate() {
 }
 
 String xorWithPin(int pin[4], String password) {
+  String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
   String encrypted = "";
 
   for (int i = 0; i < password.length(); i++) {
@@ -111,8 +113,8 @@ String xorWithPin(int pin[4], String password) {
     int index = validChars.indexOf(c);
 
     if (index == -1) {
-      displayError("Caractère invalide!");
-      return "Erreur: Caractère non valide dans le mot de passe!";
+      displayError("Errer 12");
+      return "Erreur 10";
     }
 
     index = index ^ pin[i % 4];           // Utilisez XOR ici
@@ -130,7 +132,7 @@ void setup() {
   pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS)) {
-    displayError("Erreur OLED!");
+    displayError("Erreur 11");
     Serial.println(F("SSD1306 allocation failed"));
     for (;;)
       ;
@@ -173,3 +175,4 @@ void loop() {
   }
   delay(10);
 }
+
