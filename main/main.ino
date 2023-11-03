@@ -21,7 +21,6 @@ bool buttonState2 = 0;    // Variable pour lire l'état du bouton
 
 int currentDigit = 0;           // Chiffre actuellement en cours de modification (0 à 3)
 int codeInput[] = {0, 0, 0, 0}; // Code à 4 chiffres
-int codeInputInt = 0;           // Code à 4 chiffres
 
 String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
 
@@ -34,9 +33,9 @@ void setup()
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS))
   {
+    displayError("Erreur OLED!");
     Serial.println(F("SSD1306 allocation failed"));
-    for (;;)
-      ;
+    for (;;);
   }
   display.clearDisplay();
   display.setTextSize(4); // Taille du texte
@@ -57,11 +56,12 @@ void typeKey(int key)
   KeyboardAzertyFr.release(key);
 }
 
-void writePass(int pin)
+void writePass()
 {
   if (!SD.begin(chipSelect))
   {
     // Si la carte SD n'est pas détectée, clignotez la LED
+    displayError("Erreur SD Card!");
     for (int i = 0; i < 3; i++)
     {                                     // Clignote 5 fois
       digitalWrite(LED_BUILTIN_RX, HIGH); // Allumer la RX LED
@@ -96,7 +96,7 @@ void writePass(int pin)
       digitalWrite(LED_BUILTIN_TX, LOW); // Éteindre la TX LED
     }
     myFile.close();
-    KeyboardAzertyFr.print(xorWithPin(pin, unencrypted));
+    KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
   }
   else
   {
@@ -146,6 +146,7 @@ String xorWithPin(int pin[4], String password)
 
     if (index == -1)
     {
+      displayError("Caractère invalide!");
       return "Erreur: Caractère non valide dans le mot de passe!";
     }
 
@@ -157,8 +158,21 @@ String xorWithPin(int pin[4], String password)
   return encrypted;
 }
 
+void displayError(const char* errorMsg) {
+  display.clearDisplay();      // Efface l'affichage
+  display.setTextSize(1);      // Taille du texte
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);     // Position du curseur au début
+  display.println(errorMsg);   // Affiche le message d'erreur
+  display.display();           // Met à jour l'affichage
+}
+
+
 void loop()
 {
+  buttonState = digitalRead(buttonPin);
+  buttonState2 = digitalRead(buttonPin2);
+
   if (buttonState == LOW)
   {
     codeInput[currentDigit] = (codeInput[currentDigit] + 1) % 10;
@@ -172,12 +186,7 @@ void loop()
     // si le curseur est sur le dernier chiffre, on valide le code et on retourne à 0
     if (currentDigit == 0)
     { 
-      //convertir le tableau en int
-      for (int i = 0; i < 4; i++)
-      {
-        codeInputInt = codeInputInt * 10 + codeInput[i];
-      }
-      writePass(codeInputInt);
+      writePass();
       currentDigit = 0;
     }
     displayUpdate();
