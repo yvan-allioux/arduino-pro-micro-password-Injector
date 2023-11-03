@@ -48,6 +48,7 @@ void clignote(uint8_t nbDeFlash, uint8_t delayMs) {
   }
 }
 
+
 void writePass() {
   File myFile;
   if (!SD.begin(chipSelect)) {
@@ -86,7 +87,7 @@ void displayUpdate() {
     display.print(codeInput[i]);
   }
   // Dessine le marqueur sous le chiffre actuel
-  uint8_t markerPosition = 15 + (currentDigit * 22);                // 12 est un espace approximatif pour un caractère de taille 1
+  uint8_t markerPosition = 25 + (currentDigit * 22);                // 12 est un espace approximatif pour un caractère de taille 1
   display.fillRect(markerPosition, 5, 20, 5, SSD1306_WHITE);  // Dessine un rectangle comme marqueur
   display.display();
 }
@@ -111,6 +112,7 @@ String xorWithPin(uint8_t pin[4], String password) {
 
   return encrypted;
 }
+kj
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
