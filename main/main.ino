@@ -4,8 +4,11 @@
 
 File myFile;
 const int chipSelect = 10;  // Utilisez le bon numéro de broche pour le CS de votre module SD
+const int buttonPin = 9;  // Broche où le bouton est connecté
+bool buttonState = 0;         // Variable pour lire l'état du bouton
 
 void setup() {
+  pinMode(buttonPin, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
   pinMode(LED_BUILTIN_RX, OUTPUT);  // RX LED comme sortie
   pinMode(LED_BUILTIN_TX, OUTPUT);  // TX LED comme sortie
 
@@ -13,7 +16,20 @@ void setup() {
   KeyboardAzertyFr.begin();
   delay(500);
 
-  if (!SD.begin(chipSelect)) {
+  
+}
+
+void typeKey(int key) {
+  KeyboardAzertyFr.press(key);
+  delay(50);
+  KeyboardAzertyFr.release(key);
+}
+
+void loop() {
+  buttonState = digitalRead(buttonPin);
+
+  if (buttonState == LOW) {  // Si le bouton est enfoncé (état bas car il est connecté au GND)
+    if (!SD.begin(chipSelect)) {
     // Si la carte SD n'est pas détectée, clignotez la LED
     for(int i = 0; i < 3; i++) { // Clignote 5 fois
       digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
@@ -25,6 +41,7 @@ void setup() {
     }
     return;
   }
+
 
 
   myFile = SD.open("data.txt");
@@ -57,14 +74,6 @@ void setup() {
   }
 
   typeKey(KEY_RETURN);
-}
-
-void typeKey(int key) {
-  KeyboardAzertyFr.press(key);
-  delay(50);
-  KeyboardAzertyFr.release(key);
-}
-
-void loop() {
-  // Unused
+    delay(1000); // Petite pause pour éviter des répétitions accidentelles
+  }
 }
