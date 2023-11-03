@@ -11,7 +11,7 @@
 #define I2C_ADDRESS 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-File myFile;
+
 const int chipSelect = 10;  // Utilisez le bon numéro de broche pour le CS de votre module SD
 
 const int buttonPin = 9;   // Broche où le bouton est connecté
@@ -30,6 +30,7 @@ void typeKey(int key) {
 }
 
 void writePass() {
+  File myFile;
   if (!SD.begin(chipSelect)) {
     // Si la carte SD n'est pas détectée, clignotez la LED
     for (int i = 0; i < 3; i++) {          // Clignote 5 fois
