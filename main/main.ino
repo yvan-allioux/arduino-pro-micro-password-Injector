@@ -102,22 +102,8 @@ void loop() {
   buttonState2 = digitalRead(buttonPin2);
 
   if (buttonState == LOW) {  // Si le bouton est enfoncé (état bas car il est connecté au GND)
-    //writePass();
-    if(unite == 1){
-      unite = 10;
-    }else if(unite == 10){
-      unite = 100;
-    }else if(unite == 100){
-      unite = 1000;
-    }else if(unite == 1000){
-      unite = 1;
-    }
-    display.clearDisplay();
-    display.setTextSize(1);      // Taille du texte
-    display.setTextColor(SSD1306_WHITE); 
-    display.setCursor(5,5);   // Position du curseur
-    display.print(unite);      // Votre nombre à 4 chiffres
-    display.display();
+    writePass();
+    
     delay(500);
   }
 
