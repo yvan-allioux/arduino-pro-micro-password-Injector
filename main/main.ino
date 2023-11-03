@@ -79,15 +79,15 @@ void writePass() {
 
 void displayUpdate() {
   display.clearDisplay();
-  display.setTextSize(1);
+  display.setTextSize(4);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(5, 5);
+  display.setCursor(20, 20);
   for (uint8_t i = 0; i < 4; i++) {
     display.print(codeInput[i]);
   }
   // Dessine le marqueur sous le chiffre actuel
-  uint8_t markerPosition = 5 + (currentDigit * 12);                // 12 est un espace approximatif pour un caractère de taille 1
-  display.fillRect(markerPosition, 15, 10, 2, SSD1306_WHITE);  // Dessine un rectangle comme marqueur
+  uint8_t markerPosition = 15 + (currentDigit * 22);                // 12 est un espace approximatif pour un caractère de taille 1
+  display.fillRect(markerPosition, 5, 20, 5, SSD1306_WHITE);  // Dessine un rectangle comme marqueur
   display.display();
 }
 
