@@ -112,7 +112,6 @@ String xorWithPin(uint8_t pin[4], String password) {
 
   return encrypted;
 }
-kj
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
