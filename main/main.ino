@@ -33,15 +33,24 @@ void clignote(uint8_t nbDeFlash, uint8_t delayMs) {
   }
 }
 
+void displayUpdate() {
+  ssd1306_fillScreen(0x00);
+  
+  char buf[5]; 
+  sprintf(buf, "%d%d%d%d", codeInput[0], codeInput[1], codeInput[2], codeInput[3]);
+  ssd1306_setFixedFont(comic_sans_font24x32_123);
+  ssd1306_printFixed(15, 24, buf, STYLE_NORMAL);
+  //TODO Dessine un rectangle comme marqueur
+}
+
 
 void writePass() {
   File myFile;
   if (!SD.begin(chipSelect)) {
-    // Si la carte SD n'est pas détectée, clignotez la LED
-    //displayError("Erreur 13");
-    clignote(3, 200);
+    clignote(5, 2000);
     return;
   }
+
   myFile = SD.open("data.txt");
   if (myFile) {
     String unencrypted = "";
@@ -54,26 +63,19 @@ void writePass() {
       
     }
     KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
+    //KeyboardAzertyFr.print(unencrypted);
     myFile.close();
 
   } else {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
-    //displayError("Erreur 14");
+    clignote(10, 2000);
   }
 
   typeKey(KEY_RETURN);
   delay(1000);  // Petite pause pour éviter des répétitions accidentelles
 }
 
-void displayUpdate() {
-  ssd1306_fillScreen(0x00);
-  
-  char buf[5]; 
-  sprintf(buf, "%d%d%d%d", codeInput[0], codeInput[1], codeInput[2], codeInput[3]);
-  ssd1306_setFixedFont(comic_sans_font24x32_123);
-  ssd1306_printFixed(15, 24, buf, STYLE_NORMAL);
-  //TODO Dessine un rectangle comme marqueur
-}
+
 
 String xorWithPin(uint8_t pin[4], String password) {
   String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
@@ -84,7 +86,7 @@ String xorWithPin(uint8_t pin[4], String password) {
     uint8_t index = validChars.indexOf(c);
 
     if (index == -1) {
-      //displayError("Errer 12");
+      clignote(15, 2000);
       return "Erreur 10";
     }
 
