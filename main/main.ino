@@ -21,8 +21,6 @@ void typeKey(uint8_t key) {
   KeyboardAzertyFr.release(key);
 }
 
-
-
 void clignote(uint8_t nbDeFlash, uint8_t delayMs,uint8_t secondDelayMs) {
   for (uint8_t i = 0; i < nbDeFlash; i++) {  // Clignote 5 fois
     digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
@@ -63,7 +61,7 @@ void writePass() {
       delay(5);
       
     }
-    xorWithPin(codeInput, unencrypted);
+    xorWithPin(unencrypted);
     //KeyboardAzertyFr.print(unencrypted);
     myFile.close();
 
@@ -77,26 +75,26 @@ void writePass() {
 }
 
 
+void xorWithPin(String password) {
+    uint16_t pin = (codeInput[0] * 1000) + (codeInput[1] * 100) + (codeInput[2] * 10) + codeInput[3];
+    String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    for (uint8_t i = 0; i < password.length(); i++) {
+        char c = password[i];
+        int index = validChars.indexOf(c);
 
-void xorWithPin(uint8_t pin[4], String password) {
-  String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+        if (index == -1) {
+            clignote(15, 2000, 2000);
+            return;  // Note: La fonction était censée retourner void, donc pas de "Erreur 10" ici.
+        }
 
-  for (uint8_t i = 0; i < password.length(); i++) {
-    char c = password[i];
-    uint8_t index = validChars.indexOf(c);
+        index = index ^ (pin % 256);  // XOR avec la partie basse du code PIN
+        pin = (pin >> 8) | (pin << 8);  // Rotation des bits pour mélanger le code PIN
 
-    if (index == -1) {
-      clignote(15, 2000, 2000);
-      return "Erreur 10";
+        index = index % validChars.length();  // Gardez l'index dans la plage valide
+        KeyboardAzertyFr.print(validChars[index]);
+        clignote(1, 20, 20);
     }
-
-    index = index ^ pin[i % 4];           // Utilisez XOR ici
-    index = index % validChars.length();  // Gardez l'index dans la plage valide
-    KeyboardAzertyFr.print(validChars[index]);
-    clignote(1, 20, 20);
-  }
 }
-
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
@@ -112,6 +110,7 @@ void setup() {
   delay(500);
 }
 
+
 void loop() {
   buttonState = digitalRead(buttonPin);
   buttonState2 = digitalRead(buttonPin2);
@@ -120,7 +119,7 @@ void loop() {
     clignote(1, 20, 0);
     codeInput[currentDigit] = (codeInput[currentDigit] + 1) % 10;
     displayUpdate();
-    delay(500);
+    delay(200);
   }
 
   if (buttonState2 == LOW) {
@@ -132,7 +131,7 @@ void loop() {
       currentDigit = 0;
     }
     displayUpdate();
-    delay(500);
+    delay(200);
   }
   delay(10);
 }
