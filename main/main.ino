@@ -2,15 +2,7 @@
 #include <SPI.h>
 #include <SD.h>
 
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET -1
-#define I2C_ADDRESS 0x3C
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
+#include <ssd1306.h>
 
 const uint8_t chipSelect = 10;  // Utilisez le bon numéro de broche pour le CS de votre module SD
 
@@ -23,19 +15,12 @@ uint8_t currentDigit = 0;              // Chiffre actuellement en cours de modif
 uint8_t codeInput[] = { 0, 0, 0, 0 };  // Code à 4 chiffres
 
 
-
 void typeKey(uint8_t key) {
   KeyboardAzertyFr.press(key);
   delay(50);
   KeyboardAzertyFr.release(key);
 }
 
-void displayError(const char* errorMsg) {
-  display.clearDisplay();  // Efface l'affichage
-  display.setTextSize(1);  // Taille du texte
-  display.println(errorMsg);  // Affiche le message d'erreur
-  display.display();          // Met à jour l'affichage
-}
 
 void clignote(uint8_t nbDeFlash, uint8_t delayMs) {
   for (uint8_t i = 0; i < nbDeFlash; i++) {  // Clignote 5 fois
@@ -79,17 +64,12 @@ void writePass() {
 }
 
 void displayUpdate() {
-  display.clearDisplay();
-  display.setTextSize(4);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(20, 20);
-  for (uint8_t i = 0; i < 4; i++) {
-    display.print(codeInput[i]);
-  }
-  // Dessine le marqueur sous le chiffre actuel
-  uint8_t markerPosition = 25 + (currentDigit * 22);                // 12 est un espace approximatif pour un caractère de taille 1
-  display.fillRect(markerPosition, 5, 20, 5, SSD1306_WHITE);  // Dessine un rectangle comme marqueur
-  display.display();
+  ssd1306_fillScreen(0x00);
+  char buf[5]; 
+  sprintf(buf, "%d%d%d%d", codeInput[0], codeInput[1], codeInput[2], codeInput[3]);
+  ssd1306_setFixedFont(comic_sans_font24x32_123);
+  ssd1306_printFixed(15, 24, buf, STYLE_NORMAL);
+
 }
 
 String xorWithPin(uint8_t pin[4], String password) {
@@ -113,14 +93,14 @@ String xorWithPin(uint8_t pin[4], String password) {
   return encrypted;
 }
 
+
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);   // Configure la broche du bouton comme entrée avec résistance de rappel
   pinMode(buttonPin2, INPUT_PULLUP);  // Configure la broche du bouton comme entrée avec résistance de rappel
   pinMode(LED_BUILTIN_RX, OUTPUT);    // RX LED comme sortie
   pinMode(LED_BUILTIN_TX, OUTPUT);    // TX LED comme sortie
 
-  display.begin(SSD1306_SWITCHCAPVCC, I2C_ADDRESS);
-
+  ssd1306_128x64_i2c_init();
   displayUpdate();
 
   delay(50);
@@ -152,4 +132,3 @@ void loop() {
   }
   delay(10);
 }
-
