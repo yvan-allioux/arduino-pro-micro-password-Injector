@@ -48,12 +48,14 @@ void writePass() {
     delay(600);
     while (myFile.available()) {
       char c = myFile.read();
-      KeyboardAzertyFr.print(c);
+      unencrypted += c;
+      //KeyboardAzertyFr.print(c);
       clignote(1, 10);
       
     }
+    KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
     myFile.close();
-    
+
   } else {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
     //displayError("Erreur 14");
