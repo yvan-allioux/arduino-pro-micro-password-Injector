@@ -22,14 +22,15 @@ void typeKey(uint8_t key) {
 }
 
 
-void clignote(uint8_t nbDeFlash, uint8_t delayMs) {
+
+void clignote(uint8_t nbDeFlash, uint8_t delayMs,uint8_t secondDelayMs) {
   for (uint8_t i = 0; i < nbDeFlash; i++) {  // Clignote 5 fois
-    digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
-    digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
-    delay(delayMs);
     digitalWrite(LED_BUILTIN_RX, LOW);  // Éteindre la RX LED
     digitalWrite(LED_BUILTIN_TX, LOW);  // Éteindre la TX LED
     delay(delayMs);
+    digitalWrite(LED_BUILTIN_RX, HIGH);  // Allumer la RX LED
+    digitalWrite(LED_BUILTIN_TX, HIGH);  // Allumer la TX LED
+    delay(secondDelayMs);
   }
 }
 
@@ -47,7 +48,7 @@ void displayUpdate() {
 void writePass() {
   File myFile;
   if (!SD.begin(chipSelect)) {
-    clignote(5, 2000);
+    clignote(5, 2000, 2000);
     return;
   }
 
@@ -59,16 +60,16 @@ void writePass() {
       char c = myFile.read();
       unencrypted += c;
       //KeyboardAzertyFr.print(c);
-      clignote(1, 10);
+      delay(5);
       
     }
-    KeyboardAzertyFr.print(xorWithPin(codeInput, unencrypted));
+    xorWithPin(codeInput, unencrypted);
     //KeyboardAzertyFr.print(unencrypted);
     myFile.close();
 
   } else {
     // Si le fichier n'est pas trouvé, vous pouvez également ajouter un code d'erreur LED ici si vous le souhaitez
-    clignote(10, 2000);
+    clignote(10, 2000, 2000);
   }
 
   typeKey(KEY_RETURN);
@@ -77,25 +78,23 @@ void writePass() {
 
 
 
-String xorWithPin(uint8_t pin[4], String password) {
+void xorWithPin(uint8_t pin[4], String password) {
   String validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-  String encrypted = "";
 
   for (uint8_t i = 0; i < password.length(); i++) {
     char c = password[i];
     uint8_t index = validChars.indexOf(c);
 
     if (index == -1) {
-      clignote(15, 2000);
+      clignote(15, 2000, 2000);
       return "Erreur 10";
     }
 
     index = index ^ pin[i % 4];           // Utilisez XOR ici
     index = index % validChars.length();  // Gardez l'index dans la plage valide
-    encrypted += validChars[index];
+    KeyboardAzertyFr.print(validChars[index]);
+    clignote(1, 20, 20);
   }
-
-  return encrypted;
 }
 
 
@@ -118,17 +117,17 @@ void loop() {
   buttonState2 = digitalRead(buttonPin2);
 
   if (buttonState == LOW) {
-    //clignote(10, 20);
+    clignote(1, 20, 0);
     codeInput[currentDigit] = (codeInput[currentDigit] + 1) % 10;
     displayUpdate();
     delay(500);
   }
 
   if (buttonState2 == LOW) {
+    clignote(1, 20, 0);
     currentDigit = (currentDigit + 1) % 4;
     // si le curseur est sur le dernier chiffre, on valide le code et on retourne à 0
     if (currentDigit == 0) {
-      clignote(5, 20);
       writePass();
       currentDigit = 0;
     }
