@@ -70,7 +70,7 @@ void writePass() {
     clignote(10, 2000, 2000);
   }
 
-  typeKey(KEY_RETURN);
+  //typeKey(KEY_RETURN);
   delay(1000);  // Petite pause pour éviter des répétitions accidentelles
 }
 
