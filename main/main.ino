@@ -65,11 +65,12 @@ void writePass() {
 
 void displayUpdate() {
   ssd1306_fillScreen(0x00);
+  
   char buf[5]; 
   sprintf(buf, "%d%d%d%d", codeInput[0], codeInput[1], codeInput[2], codeInput[3]);
   ssd1306_setFixedFont(comic_sans_font24x32_123);
   ssd1306_printFixed(15, 24, buf, STYLE_NORMAL);
-
+  //TODO Dessine un rectangle comme marqueur
 }
 
 String xorWithPin(uint8_t pin[4], String password) {
